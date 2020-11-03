@@ -8,6 +8,8 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
+#include <sys/wait.h>
+
 enum errors {
     OK,
     ERR_INCORRECT_ARGS,
@@ -67,23 +69,23 @@ int main(int argc, char** argv) {
     struct sockaddr_in client_address;
     socklen_t size;
     int* client_socket = malloc(clients * sizeof(int));
+    char ch = 0;
     for (int i = 0; i < clients; i++) {
-        client_socket[i] = accept(server_socket, 
+        if (fork() == 0) {
+            client_socket[i] = accept(server_socket, 
                                    (struct sockaddr *) &client_address,
                                    &size);
-        printf("connected: %s %d\n", inet_ntoa(client_address.sin_addr),
-                                     ntohs(client_address.sin_port));
-    }
-    char ch = 0;
-    while(ch != '\n') {     
-        for (int i = 0; i < clients; i++) {
-            read(client_socket[i], &ch, 1);
-            if (ch == '\n') break;
-            printf("%d: %c\n", i, ch);
+            while (1) {
+                read(client_socket[i], &ch, 1);
+                if (ch == '\n') break;
+                printf("%d: %c\n", i, ch);
+            }
+            close(client_socket[i]);
+            return 1;
         } 
-    }
+    } 
     for (int i = 0; i < clients; i++) {
-        close(client_socket[i]);
+        wait(NULL);
     }
     free(client_socket);
 
