@@ -62,9 +62,6 @@ int main(int argc, char **argv) {
             perror("write");
             return 1;
         }
-        if (ch == '\n') {
-            break;
-        }
     }
     close(server);
     return OK;

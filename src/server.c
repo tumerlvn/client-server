@@ -73,19 +73,27 @@ int main(int argc, char** argv) {
     for (int i = 0; i < clients; i++) {
         if (fork() == 0) {
             client_socket[i] = accept(server_socket, 
-                                   (struct sockaddr *) &client_address,
-                                   &size);
-            while (1) {
-                read(client_socket[i], &ch, 1);
-                if (ch == '\n') break;
-                printf("%d: %c\n", i, ch);
+                                       (struct sockaddr *) &client_address,
+                                       &size);
+            char word[100] = {0};
+            int j = 0;
+            while (read(client_socket[i], &(word[j]), 1) > 0) {
+                if (word[j] == '\n' || word[j] == ' ') {
+                    word[j] = 0;
+                    printf("%d: %s\n", i, word);
+                    for (int k = 0; k < j + 1; k++) {
+                        word[k] = 0;
+                    }
+                    j = -1;
+                }
+                j++; 
             }
-            close(client_socket[i]);
             return 1;
         } 
     } 
     for (int i = 0; i < clients; i++) {
         wait(NULL);
+        close(client_socket[i]);
     }
     free(client_socket);
 
