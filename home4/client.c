@@ -60,7 +60,6 @@ int main(int argc, char **argv) {
     char ch;
     puts("Write data:");
     if (fork() == 0) {
-        puts("fooooork");
         char word[100] = {0};
         int j = 0;
         while (read(server, &(word[j]), 1) >= 0) {
