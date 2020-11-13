@@ -3,6 +3,7 @@
 Simple low-level client-server connection.
 
 # Compile
+Go to home*
 ```
 make
 ```
@@ -10,12 +11,12 @@ make
 # Run server
 Argument: port.
 ```
-bin/server 5000
+server 5000
 ```
 
 # Run client
 Argument: ip and port.
 ```
-bin/client 127.0.0.1 5000
+client 127.0.0.1 5000
 ```
 
