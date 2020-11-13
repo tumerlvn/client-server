@@ -1,10 +1,21 @@
-# client-server
+# Description
 
- ## Compilation
-  `make`
+Simple low-level client-server connection.
 
- ## How to run program
-  `./bin/main`
+# Compile
+```
+make
+```
 
- ## Links
-  * [main link and materials](http://mymath.info)
+# Run server
+Argument: port.
+```
+bin/server 5000
+```
+
+# Run client
+Argument: ip and port.
+```
+bin/client 127.0.0.1 5000
+```
+
