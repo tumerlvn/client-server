@@ -9,6 +9,8 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
+#include <sys/wait.h>
+
 enum errors {
     OK,
     ERR_INCORRECT_ARGS,
@@ -57,16 +59,31 @@ int main(int argc, char **argv) {
 
     char ch;
     puts("Write data:");
-    while (read(0, &ch, 1) >= 0) {
-        if (ch == '\n') {
-            continue;
+    if (fork() == 0) {
+        puts("fooooork");
+        char word[100] = {0};
+        int j = 0;
+        while (read(server, &(word[j]), 1) >= 0) {
+            if (word[j] == '\n' || word[j] == ' ') {
+                write(1, word, j + 1);
+                for (int k = 0; k < j + 1; k++) {
+                    word[k] = 0;
+                }
+                j = -1;
+            }
+            j++;
         }
+        _exit(1);
+    }
+
+    while (read(0, &ch, 1) >= 0) {
         if (write(server, &(ch), 1) < 0) {
             perror("write");
             return 1;
         }
     }
+
+    wait(NULL);
     close(server);
     return OK;
 }
-

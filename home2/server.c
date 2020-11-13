@@ -75,9 +75,7 @@ int main(int argc, char** argv) {
             client_socket[i] = accept(server_socket, 
                                    (struct sockaddr *) &client_address,
                                    &size);
-            while (1) {
-                read(client_socket[i], &ch, 1);
-                if (ch == '\n') break;
+            while (read(client_socket[i], &ch, 1) > 0) {
                 printf("%d: %c\n", i, ch);
             }
             close(client_socket[i]);

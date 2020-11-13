@@ -58,12 +58,11 @@ int main(int argc, char **argv) {
     char ch;
     puts("Write data:");
     while (read(0, &ch, 1) >= 0) {
-        if (write(server, &(ch), 1) < 0) {
+        if (ch == '\n') {
+            continue;
+        } else if (write(server, &(ch), 1) < 0) {
             perror("write");
             return 1;
-        }
-        if (ch == '\n') {
-            break;
         }
     }
     close(server);
