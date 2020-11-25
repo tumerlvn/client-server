@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
     int j = 0;
     while (read(0, &(word[j]), 1) >= 0) {
         j++;
-        if (word[j-1] == '\n') {
+        if (word[j-1] == '\n' || word[j-1] == ' ') {
             write(server, "GET ", 4);
             write(server, word, j-1); 
             write(server, " HTTP/1.1\nHost: mymath.info\n\n", 29);

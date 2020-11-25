@@ -108,11 +108,11 @@ void sendDataBack(char *fname, int client_socket) {
 }
 
 int main(int argc, char** argv) {
-    if (argc != 2) {
+    if (argc != 3) {
         puts("Incorrect args.");
-        puts("./server <port>");
+        puts("./server <port> <clients>");
         puts("Example:");
-        puts("./server 5000");
+        puts("./server 5000 2");
         return ERR_INCORRECT_ARGS;
     }
     int port = atoi(argv[1]);
@@ -120,24 +120,34 @@ int main(int argc, char** argv) {
     puts("Wait for connection");
     struct sockaddr_in client_address;
     socklen_t size;
-    int client_socket = accept(server_socket, 
-                           (struct sockaddr *) &client_address,
-                           &size);
+    int clients = atoi(argv[2]);
+    int *client_socket = malloc(clients * sizeof(int));
     char ch;
     int j = 0;
-    while (read(client_socket, &ch, 1) > 0) {
-        if (ch == ' ') {
-            char fname[100] = {0};
-            j = getFname(fname, client_socket);
-            if (fork() == 0) {
-                sendDataBack(fname, client_socket);
-                _exit(1);
+    for (int i = 0; i < clients; i++) {
+        if (fork() == 0) {
+            client_socket[i] = accept(server_socket, 
+                               (struct sockaddr *) &client_address,
+                               &size);
+            while (read(client_socket[i], &ch, 1) > 0) {
+                if (ch == ' ') {
+                    char fname[100] = {0};
+                    j = getFname(fname, client_socket[i]);
+                    if (fork() == 0) {
+                        sendDataBack(fname, client_socket[i]);
+                        _exit(1);
+                    }
+                    wait(NULL);
+                    j = 0; 
+                }
             }
-            wait(NULL);
-            j = 0; 
+            close(client_socket[i]);
+            _exit(1);
         }
     }
-    close(client_socket);
-
+    for (int i = 0; i < clients; i++) {
+        wait(NULL);
+    }
+    free(client_socket);
     return OK;
 }
