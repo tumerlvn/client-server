@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
         while (read(server, &ch, 1) >= 0) {
             write(1, &ch, 1);
         }
-        _exit(1);
+        exit(0);
     }
     char word[100] = {0};
     int j = 0;

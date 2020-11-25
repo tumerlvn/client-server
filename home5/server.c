@@ -135,14 +135,14 @@ int main(int argc, char** argv) {
                     j = getFname(fname, client_socket[i]);
                     if (fork() == 0) {
                         sendDataBack(fname, client_socket[i]);
-                        _exit(1);
+                        exit(0);
                     }
                     wait(NULL);
                     j = 0; 
                 }
             }
             close(client_socket[i]);
-            _exit(1);
+            exit(0);
         }
     }
     for (int i = 0; i < clients; i++) {
