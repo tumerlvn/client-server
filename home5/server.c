@@ -12,6 +12,8 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+#include <string.h>
+
 enum errors {
     OK,
     ERR_INCORRECT_ARGS,
@@ -72,27 +74,28 @@ int getFname(char *fname, int client_socket) {
 void writeNum(int client_socket, int size) {
     char buf[1000] = {0};
     char bufSize = 0;
-    if (size == 0) {
-        write(client_socket, "0", 1);
-    } else {
-        while (size > 0) {
-            buf[bufSize] = size % 10 + '0';
-            size /= 10;
-            bufSize++;
-        }
-        for (int i = bufSize - 1; i >= 0; i--) {
-            write(client_socket, &(buf[i]), 1);
-        }
+    int tmp = size;
+    while (tmp > 0) {
+        bufSize++;
+        tmp /= 10;
     }
+    if (size == 0) {
+        bufSize++;
+    }
+    snprintf(buf, bufSize + 1, "%d", size);
+    write(client_socket, buf, bufSize); 
 }
 
 void sendDataBack(char *fname, int client_socket) {
     char ch;
     int fd =  open(fname, O_RDONLY);
     if (fd > 0) {
-        write(client_socket, "HTTP/1.1 200\n", 13);
-        write(client_socket, "content-type: html/text\n", 24);
-        write(client_socket, "content-length: ", 16);
+        char h1[] = "HTTP/1.1 200\n";
+        char h2[] = "content-type: html/text\n";
+        char h3[] = "content-length: ";
+        write(client_socket, h1, strlen(h1));
+        write(client_socket, h2, strlen(h2));
+        write(client_socket, h3, strlen(h3));
         int size = 0; 
         char buf[10000] = {0};
         while (read(fd, &ch, 1)) {
@@ -103,7 +106,8 @@ void sendDataBack(char *fname, int client_socket) {
         write(client_socket, "\n\n", 2);
         write(client_socket, buf, size);
     } else {
-        write(client_socket, "HTTP/1.1 404\n", 13);
+        char h[] = "HTTP/1.1 404\n";
+        write(client_socket, h, strlen(h));
     }
 }
 
@@ -119,7 +123,7 @@ int main(int argc, char** argv) {
     int server_socket = init_socket(port);
     puts("Wait for connection");
     struct sockaddr_in client_address;
-    socklen_t size;
+    socklen_t size = sizeof(client_address);
     int clients = atoi(argv[2]);
     int *client_socket = malloc(clients * sizeof(int));
     char ch;
